@@ -86,3 +86,69 @@ type BucketListResp struct {
 	Filter       string    `json:"Filter,omitempty"`
 	NextPageLink string    `json:"NextPageLink,omitempty"`
 }
+
+type BucketCreateReq struct {
+	BlockSize         int64  `json:"blockSize,omitempty"`
+	NotificationSize  int64  `json:"notificationSize,omitempty"`
+	Name              string `json:"name,omitempty"`
+	Vpool             string `json:"vpool,omitempty"`
+	FilesystemEnabled bool   `json:"filesystem_enabled,omitempty"`
+	HeadType          string `json:"head_type,omitempty"`
+	Namespace         string `json:"namespace,omitempty"`
+	TagSet            []struct {
+		Key   string `json:"Key,omitempty"`
+		Value string `json:"Value,omitempty"`
+	} `json:"TagSet,omitempty"`
+	IsEncryptionEnabled               bool   `json:"is_encryption_enabled,omitempty"`
+	DefaultGroupFileReadPermission    bool   `json:"default_group_file_read_permission,omitempty"`
+	DefaultGroupFileWritePermission   bool   `json:"default_group_file_write_permission,omitempty"`
+	DefaultGroupFileExecutePermission bool   `json:"default_group_file_execute_permission,omitempty"`
+	DefaultGroupDirReadPermission     bool   `json:"default_group_dir_read_permission,omitempty"`
+	DefaultGroupDirWritePermission    bool   `json:"default_group_dir_write_permission,omitempty"`
+	DefaultGroupDirExecutePermission  bool   `json:"default_group_dir_execute_permission,omitempty"`
+	DefaultGroup                      string `json:"default_group,omitempty"`
+	AutocommitPeriod                  int64  `json:"autocommit_period,omitempty"`
+	Retention                         int64  `json:"retention,omitempty"`
+	IsStaleAllowed                    bool   `json:"is_stale_allowed,omitempty"`
+	IsTsoReadOnly                     bool   `json:"is_tso_read_only,omitempty"`
+	SearchMetadata                    []struct {
+		Type     string `json:"type,omitempty"`
+		Name     string `json:"name,omitempty"`
+		Datatype string `json:"datatype,omitempty"`
+	} `json:"search_metadata,omitempty"`
+	Owner          string `json:"owner,omitempty"`
+	MinMaxGovernor struct {
+		EnforceRetention         bool  `json:"enforce_retention,omitempty"`
+		MinimumFixedRetention    int64 `json:"minimum_fixed_retention,omitempty"`
+		MaximumFixedRetention    int64 `json:"maximum_fixed_retention,omitempty"`
+		MinimumVariableRetention int64 `json:"minimum_variable_retention,omitempty"`
+		MaximumVariableRetention int64 `json:"maximum_variable_retention,omitempty"`
+	} `json:"min_max_governor,omitempty"`
+	AuditedDeleteExpiration int64 `json:"audited_delete_expiration,omitempty"`
+}
+
+type BucketCreateResp struct {
+	Global   bool `json:"global,omitempty"`
+	Remote   bool `json:"remote,omitempty"`
+	MetaData struct {
+		IsEnabled bool `json:"isEnabled,omitempty"`
+		Metadata  []struct {
+			Type     string `json:"type,omitempty"`
+			Name     string `json:"name,omitempty"`
+			DataType string `json:"datatype,omitempty"`
+		} `json:"metadata,omitempty"`
+		MaxKeys        int  `json:"maxKeys,omitempty"`
+		MetadataTokens bool `json:"metadata_tokens,omitempty"`
+	} `json:"metaData,omitempty"`
+	AdvancedMetadataSearchEnabled bool      `json:"advancedMetadataSearchEnabled,omitempty"`
+	Name                          string    `json:"name,omitempty"`
+	ID                            string    `json:"id,omitempty"`
+	CreationTime                  time.Time `json:"creation_time,omitempty"`
+	Inactive                      bool      `json:"inactive,omitempty"`
+	Internal                      bool      `json:"internal,omitempty"`
+	ErrorMessage                  string    `json:"error_message,omitempty"`
+	TagSet                        []struct {
+		Key   string `json:"key,omitempty"`
+		Value string `json:"value,omitempty"`
+	} `json:"TagSet,omitempty"`
+}
