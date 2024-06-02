@@ -1,14 +1,16 @@
 package goecsclient
 
 import (
+	"bytes"
 	"crypto/tls"
-	"errors"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/coredgeio/goecsclient/errors"
 )
 
 type ecsSession struct {
@@ -40,9 +42,6 @@ func (s *ecsSession) Get(subUrl string, q url.Values) ([]byte, error) {
 			resp.Body.Close()
 		}
 	}()
-	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New(resp.Status)
-	}
 	var bodyBytes []byte
 	if resp.Body != nil {
 		bodyBytes, err = io.ReadAll(resp.Body)
@@ -50,6 +49,47 @@ func (s *ecsSession) Get(subUrl string, q url.Values) ([]byte, error) {
 			log.Println("failed to read Body", err)
 			return nil, err
 		}
+	}
+	if resp.StatusCode != http.StatusOK {
+		if bodyBytes != nil {
+			return nil, errors.ParseError(bodyBytes)
+		}
+		return nil, errors.Wrap(resp.Status)
+	}
+	return bodyBytes, nil
+}
+
+func (s *ecsSession) Post(subUrl string, d []byte, q url.Values) ([]byte, error) {
+	req, _ := http.NewRequest("POST", s.Endpoint+subUrl, bytes.NewReader(d))
+	if q != nil {
+		req.URL.RawQuery = q.Encode()
+	}
+	req.Header.Set("X-SDS-AUTH-TOKEN", s.Token)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	resp, err := s.c.Do(req)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer func() {
+		if resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
+	var bodyBytes []byte
+	if resp.Body != nil {
+		bodyBytes, err = io.ReadAll(resp.Body)
+		if err != nil {
+			log.Println("failed to read Body", err)
+			return nil, err
+		}
+	}
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+		if bodyBytes != nil {
+			return nil, errors.ParseError(bodyBytes)
+		}
+		return nil, errors.Wrap(resp.Status)
 	}
 	return bodyBytes, nil
 }
@@ -73,7 +113,7 @@ func (s *ecsSession) performLogin() error {
 		}
 	}()
 	if resp.StatusCode != http.StatusOK {
-		return errors.New("login request failed, check endpoint or credentials")
+		return errors.Wrap("login request failed, check endpoint or credentials")
 	}
 	token := ""
 	if len(resp.Header) != 0 {
@@ -105,7 +145,7 @@ func (s *ecsSession) performLogin() error {
 		s.Token = token
 		return nil
 	}
-	return errors.New("Auth Token not available in response")
+	return errors.Wrap("Auth Token not available in response")
 }
 
 func createEcsSession(username, password, endpoint string) (*ecsSession, error) {
