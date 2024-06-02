@@ -54,7 +54,6 @@ func (c *bucketClient) Create(req *BucketCreateReq) (*BucketCreateResp, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("sending data", string(data))
 
 	bytes, err := c.apiClient.Post("/object/bucket", data, nil)
 	if err != nil {
@@ -74,13 +73,11 @@ func (c *bucketClient) Delete(name, namespace string) error {
 		query = url.Values{}
 		query.Add("namespace", namespace)
 	}
-	bytes, err := c.apiClient.Post("/object/bucket/"+name+"/deactivate", nil, query)
+	_, err := c.apiClient.Post("/object/bucket/"+name+"/deactivate", nil, query)
 	if err != nil {
-		log.Println("got error while deleting bucket", err)
 		return err
 	}
 
-	log.Println("got response for delete:", bytes)
 	return nil
 }
 
