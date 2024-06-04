@@ -152,3 +152,30 @@ type BucketCreateResp struct {
 		Value string `json:"value,omitempty"`
 	} `json:"TagSet,omitempty"`
 }
+
+type BucketQuotaUpdateReq struct {
+	BlockSize        int64  `json:"blockSize,omitempty"`
+	NotificationSize int64  `json:"notificationSize,omitempty"`
+	Namespace        string `json:"namespace,omitempty"`
+}
+
+type BucketBillingInfoResp struct {
+	Namespace     string    `json:"namespace,omitempty"`
+	Name          string    `json:"name,omitempty"`
+	VpoolID       string    `json:"vpool_id,omitempty"`
+	TotalSize     string    `json:"total_size,omitempty"`
+	TotalSizeUnit string    `json:"total_size_unit,omitempty"`
+	TotalObjects  int       `json:"total_objects,omitempty"`
+	SampleTime    time.Time `json:"sample_time,omitempty"`
+	TotalMpuSize  string    `json:"total_mpu_size,omitempty"`
+	TotalMpuParts int       `json:"total_mpu_parts,omitempty"`
+	TagSet        []struct {
+		Tag struct {
+			Key   string `json:"key,omitempty"`
+			Value string `json:"value,omitempty"`
+		} `json:"tag,omitempty"`
+	} `json:"TagSet,omitempty"` // update sub struct
+	UptodateTill        time.Time `json:"uptodate_till,omitempty"`
+	TotalObjectsDeleted string    `json:"total_objects_deleted,omitempty"`
+	TotalSizeDeleted    string    `json:"total_size_deleted,omitempty"`
+}
