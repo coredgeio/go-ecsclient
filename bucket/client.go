@@ -13,6 +13,8 @@ type BucketClient interface {
 	GetList(param *BucketListParameters) (*BucketListResp, error)
 	Create(req *BucketCreateReq) (*BucketCreateResp, error)
 	Delete(name, namespace string) error
+	SetQuota(name string, req *BucketQuotaUpdateReq) error
+	GetBillingInfo(name, namespace, sizeunit string) (*BucketBillingInfoResp, error)
 }
 
 type bucketClient struct {
@@ -79,6 +81,33 @@ func (c *bucketClient) Delete(name, namespace string) error {
 	}
 
 	return nil
+}
+
+func (c *bucketClient) SetQuota(name string, req *BucketQuotaUpdateReq) error {
+	data, err := json.Marshal(req)
+	if err != nil {
+		return err
+	}
+	_, err = c.apiClient.Put("/object/bucket/"+name+"/quota", data, nil)
+	return err
+}
+
+func (c *bucketClient) GetBillingInfo(name, namespace, sizeunit string) (*BucketBillingInfoResp, error) {
+	var query url.Values
+	if sizeunit != "" {
+		query = url.Values{}
+		query.Add("sizeunit", sizeunit)
+	}
+	bytes, err := c.apiClient.Get("/object/billing/buckets/"+namespace+"/"+name+"/info", query)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &BucketBillingInfoResp{}
+	if err = json.Unmarshal(bytes, resp); err != nil {
+		log.Println("failed to decode response for get bucket billing info", err)
+	}
+	return resp, err
 }
 
 // provides EcsBucketClient for give handler to EcsClient

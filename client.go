@@ -8,6 +8,7 @@ import (
 type EcsClient interface {
 	Get(subUrl string, query url.Values) ([]byte, error)
 	Post(subUrl string, data []byte, query url.Values) ([]byte, error)
+	Put(subUrl string, data []byte, query url.Values) ([]byte, error)
 }
 
 type ecsClient struct {
@@ -23,6 +24,10 @@ func (c *ecsClient) Get(subUrl string, query url.Values) ([]byte, error) {
 
 func (c *ecsClient) Post(subUrl string, data []byte, query url.Values) ([]byte, error) {
 	return c.Session.Post(subUrl, data, query)
+}
+
+func (c *ecsClient) Put(subUrl string, data []byte, query url.Values) ([]byte, error) {
+	return c.Session.Put(subUrl, data, query)
 }
 
 // creates Ecs management API client using username and password of provided

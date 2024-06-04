@@ -94,6 +94,41 @@ func (s *ecsSession) Post(subUrl string, d []byte, q url.Values) ([]byte, error)
 	return bodyBytes, nil
 }
 
+func (s *ecsSession) Put(subUrl string, d []byte, q url.Values) ([]byte, error) {
+	req, _ := http.NewRequest("PUT", s.Endpoint+subUrl, bytes.NewReader(d))
+	if q != nil {
+		req.URL.RawQuery = q.Encode()
+	}
+	req.Header.Set("X-SDS-AUTH-TOKEN", s.Token)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	resp, err := s.c.Do(req)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer func() {
+		if resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
+	var bodyBytes []byte
+	if resp.Body != nil {
+		bodyBytes, err = io.ReadAll(resp.Body)
+		if err != nil {
+			log.Println("failed to read Body", err)
+			return nil, err
+		}
+	}
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+		if bodyBytes != nil {
+			return nil, errors.ParseError(bodyBytes)
+		}
+		return nil, errors.Wrap(resp.Status)
+	}
+	return bodyBytes, nil
+}
+
 // internal function to perform login while client is created using user
 // credentials. upon successful login attempt this updates the token that
 // is used as part of various api triggers
