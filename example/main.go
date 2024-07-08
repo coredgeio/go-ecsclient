@@ -181,6 +181,18 @@ func main() {
 		log.Printf("created policy version %+v", createPolicyVerResp)
 	}
 
+	getPolicyVersionParam := &iam.GetPolicyVersionParam{
+		Action: "GetPolicyVersion",
+		PolicyArn: "urn:ecs:iam::ns1:policy/policy1",
+		VersionId: createPolicyVerResp.CreatePolicyVersionResult.PolicyVersion.VersionId,
+	}
+	getPolicyVersionResp, err := iamClient.GetPolicyVersion("ns1", getPolicyVersionParam)
+	if err != nil {
+		log.Println("got error while gettin policy version", err)
+	} else {
+		log.Printf("policy version %+v", getPolicyVersionResp)
+	}
+
 	// Delete Policy Version
 	deletePolicyVerReq := &iam.DeletePolicyVersionParameters{
 		Action: "DeletePolicyVersion",
@@ -205,6 +217,18 @@ func main() {
 		log.Println("got error while attach user policy", err)
 	} else {
 		log.Printf("attach user policy %+v", attachUserPolicyResp)
+	}
+
+	// list policy users
+	listPolicyUsersParam := &iam.ListPolicyUsersParam{
+		Action: "ListEntitiesForPolicy",
+		PolicyArn: "urn:ecs:iam::ns1:policy/policy1",
+	}
+	listPolicyUsersResp, err := iamClient.ListPolicyUsers("ns1",listPolicyUsersParam)
+	if err != nil {
+		log.Println("got error while listing policy users", err)
+	} else {
+		log.Printf("policy users: %+v", listPolicyUsersResp)
 	}
 
 	// user attached policy list
