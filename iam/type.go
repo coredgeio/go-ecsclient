@@ -262,3 +262,44 @@ type GetUserAttachedPolicyListResp struct {
 		RequestId string `json:"RequestId,omitempty"`
 	} `json:"ResponseMetadata,omitempty"`
 }
+
+type GetPolicyVersionParam struct {
+	PolicyArn string
+	VersionId string
+	Action string
+}
+
+type GetPolicyVersionResp struct {
+	ResponseMetadata struct {
+		RequestID string `json:"RequestId,omitempty"`
+	} `json:"ResponseMetadata,omitempty"`
+	GetPolicyVersionResult struct {
+		PolicyVersion struct {
+			CreateDate       time.Time `json:"CreateDate,omitempty"`
+			Document         string    `json:"Document,omitempty"`
+			IsDefaultVersion bool      `json:"IsDefaultVersion,omitempty"`
+			VersionID        string    `json:"VersionId,omitempty"`
+		} `json:"PolicyVersion,omitempty"`
+	} `json:"GetPolicyVersionResult,omitempty"`
+}
+
+type ListPolicyUsersParam struct {
+	Action string
+	PolicyArn string
+}
+
+type ListPolicyUsersResp struct {
+	ResponseMetadata struct {
+		RequestID string `json:"RequestId,omitempty"`
+	} `json:"ResponseMetadata,omitempty"`
+	ListEntitiesForPolicyResult struct {
+		Marker       any   `json:"Marker,omitempty"`
+		PolicyRoles  []any `json:"PolicyRoles,omitempty"`
+		PolicyGroups []any `json:"PolicyGroups,omitempty"`
+		PolicyUsers  []struct {
+			UserName string `json:"UserName,omitempty"`
+			UserID   string `json:"UserId,omitempty"`
+		} `json:"PolicyUsers,omitempty"`
+		IsTruncated bool `json:"IsTruncated,omitempty"`
+	} `json:"ListEntitiesForPolicyResult,omitempty"`
+}

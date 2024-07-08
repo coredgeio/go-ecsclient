@@ -21,8 +21,10 @@ type IamClient interface {
 	DeleteUser(namespace string, param *DeleteUserParameters) (*DeleteUserResp, error)
 	DetachPolicy(namespace string, param *DetachPolicyParameters) (*DetachPolicyResp, error)
 	GetPolicy(namespace string, param *GetPolicyParameters) (*GetPolicyResp, error)
+	GetPolicyVersion(namespace string, param *GetPolicyVersionParam) (*GetPolicyVersionResp, error)
 	GetUserAttachedPolicyList(namespace string, param *GetUserAttachedPolicyListParameters) (*GetUserAttachedPolicyListResp, error)
 	ListPolicies(namespace string, param *ListPoliciesParameters) (*ListPoliciesResp, error)
+	ListPolicyUsers(namespace string, param *ListPolicyUsersParam) (*ListPolicyUsersResp, error)
 	UpdateAccessKey(namespace string, param *UpdateAccessKeyParameters) (*UpdateAccessKeyResp, error)
 	
 }
@@ -488,4 +490,58 @@ func GetEcsIamClient(apiClient client.EcsClient) IamClient {
 	return &iamClient{
 		apiClient: apiClient,
 	}
+}
+
+func (c *iamClient) GetPolicyVersion(namespace string, param *GetPolicyVersionParam) (*GetPolicyVersionResp, error) {
+	var query url.Values
+	if param != nil && (param.PolicyArn != "" ) && param.Action == "GetPolicyVersion" {
+		query = url.Values{}
+		if param.PolicyArn != "" {
+			query.Add("PolicyArn", param.PolicyArn)
+		}
+		if param.PolicyArn != "" {
+			query.Add("VersionId", param.VersionId)
+		}
+		if param.Action != "" {
+			query.Add("Action", param.Action)
+		}
+	}
+
+	bytes, err := c.apiClient.Get("/iam", query, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &GetPolicyVersionResp{}
+	if err = json.Unmarshal(bytes, resp); err != nil {
+		log.Println("failed to decode response for get user policy", err)
+	}
+	return resp, err
+}
+
+func (c *iamClient) ListPolicyUsers(namespace string, param *ListPolicyUsersParam) (*ListPolicyUsersResp, error) {
+	var query url.Values
+	if param != nil && (param.PolicyArn != "" || namespace != "" ) && param.Action == "ListEntitiesForPolicy" {
+		query = url.Values{}
+		if param.PolicyArn != "" {
+			query.Add("PolicyArn", param.PolicyArn)
+		}
+		if namespace != "" {
+			query.Add("Namespace", namespace)
+		}
+		if param.Action != "" {
+			query.Add("Action", param.Action)
+		}
+	}
+
+	bytes, err := c.apiClient.Get("/iam", query, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &ListPolicyUsersResp{}
+	if err = json.Unmarshal(bytes, resp); err != nil {
+		log.Println("failed to decode response for list policy users ", err)
+	}
+	return resp, err
 }
